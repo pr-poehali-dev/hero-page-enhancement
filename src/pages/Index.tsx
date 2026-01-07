@@ -5,6 +5,7 @@ import { AdminPanel } from '@/components/AdminPanel';
 import { PostsList } from '@/components/PostsList';
 import { MediaSection } from '@/components/MediaSection';
 import { AboutSection } from '@/components/AboutSection';
+import { saveMediaToDB, getAllMediaFromDB } from '@/lib/db';
 
 const Index = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -24,10 +25,12 @@ const Index = () => {
       setPosts(JSON.parse(savedPosts));
     }
 
-    const savedMedia = localStorage.getItem('mediaItems');
-    if (savedMedia) {
-      setMediaItems(JSON.parse(savedMedia));
-    }
+    // Загрузка медиа из IndexedDB
+    getAllMediaFromDB().then((items) => {
+      setMediaItems(items);
+    }).catch((error) => {
+      console.error('Error loading media from DB:', error);
+    });
 
     const savedBg = localStorage.getItem('backgroundImage');
     if (savedBg) {
@@ -65,10 +68,14 @@ const Index = () => {
     localStorage.setItem('backgroundImage', image);
   };
 
-  const addMedia = (media: any) => {
-    const newMedia = [...mediaItems, media];
-    setMediaItems(newMedia);
-    localStorage.setItem('mediaItems', JSON.stringify(newMedia));
+  const addMedia = async (media: any) => {
+    try {
+      await saveMediaToDB(media);
+      const updatedMedia = await getAllMediaFromDB();
+      setMediaItems(updatedMedia);
+    } catch (error) {
+      console.error('Error saving media to DB:', error);
+    }
   };
 
   return (
