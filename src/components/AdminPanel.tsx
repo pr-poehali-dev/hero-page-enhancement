@@ -9,15 +9,20 @@ import { toast } from 'sonner';
 interface AdminPanelProps {
   onAddPost: (post: any) => void;
   onUpdateBackground: (image: string) => void;
+  onAddMedia: (media: any) => void;
 }
 
-export const AdminPanel = ({ onAddPost, onUpdateBackground }: AdminPanelProps) => {
+export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'posts' | 'media'>('posts');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [media, setMedia] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const [showTypewriter, setShowTypewriter] = useState(false);
+  const [mediaTitle, setMediaTitle] = useState('');
+  const [mediaFile, setMediaFile] = useState<string | null>(null);
+  const [mediaFileType, setMediaFileType] = useState<'image' | 'video' | null>(null);
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -75,6 +80,46 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground }: AdminPanelProps) =
     setMediaType(null);
   };
 
+  const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setMediaFile(result);
+        setMediaFileType(file.type.startsWith('video') ? 'video' : 'image');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddMedia = () => {
+    if (!mediaFile) {
+      setShowTypewriter(true);
+      setTimeout(() => setShowTypewriter(false), 2000);
+      return;
+    }
+
+    const mediaItem = {
+      id: Date.now(),
+      title: mediaTitle || 'Без названия',
+      file: mediaFile,
+      type: mediaFileType,
+      timestamp: new Date().toISOString(),
+    };
+
+    onAddMedia(mediaItem);
+    setMediaTitle('');
+    setMediaFile(null);
+    setMediaFileType(null);
+    toast.success('Медиа добавлено!');
+  };
+
+  const removeMediaFile = () => {
+    setMediaFile(null);
+    setMediaFileType(null);
+  };
+
   return (
     <>
       <button
@@ -99,6 +144,22 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground }: AdminPanelProps) =
               </Button>
             </div>
 
+            <div className="flex gap-2 mb-6">
+              <Button
+                onClick={() => setActiveTab('posts')}
+                className={`flex-1 ${activeTab === 'posts' ? 'bg-game-purple' : 'bg-white/10'} hover:bg-game-purple/80 text-white pixel-font text-xs`}
+              >
+                Публикации
+              </Button>
+              <Button
+                onClick={() => setActiveTab('media')}
+                className={`flex-1 ${activeTab === 'media' ? 'bg-game-purple' : 'bg-white/10'} hover:bg-game-purple/80 text-white pixel-font text-xs`}
+              >
+                Медиа
+              </Button>
+            </div>
+
+            {activeTab === 'posts' && (
             <div className="space-y-4">
               <div>
                 <label className="text-white text-sm mb-2 block">Заголовок</label>
@@ -170,6 +231,61 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground }: AdminPanelProps) =
                 Опубликовать
               </Button>
             </div>
+            )}
+
+            {activeTab === 'media' && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-white text-sm mb-2 block">Название</label>
+                <Input
+                  value={mediaTitle}
+                  onChange={(e) => setMediaTitle(e.target.value)}
+                  placeholder="Название медиа (необязательно)..."
+                  className="bg-white/10 border-game-purple text-white placeholder:text-gray-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-white text-sm mb-2 block">Видео или изображение</label>
+                <Input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleMediaFileUpload}
+                  className="bg-white/10 border-game-purple text-white"
+                />
+                {mediaFile && (
+                  <div className="mt-2 relative">
+                    {mediaFileType === 'image' ? (
+                      <img src={mediaFile} alt="Preview" className="w-full h-48 object-cover rounded" />
+                    ) : (
+                      <video src={mediaFile} className="w-full h-48 object-cover rounded" controls />
+                    )}
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={removeMediaFile}
+                      className="absolute top-2 right-2"
+                    >
+                      <Icon name="Trash2" size={16} />
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {showTypewriter && (
+                <div className="text-game-red pixel-font text-sm overflow-hidden whitespace-nowrap animate-typewriter">
+                  File not selected
+                </div>
+              )}
+
+              <Button
+                onClick={handleAddMedia}
+                className="w-full bg-game-purple hover:bg-game-purple/80 text-white pixel-font text-xs"
+              >
+                Добавить в медиа
+              </Button>
+            </div>
+            )}
           </Card>
         </div>
       )}

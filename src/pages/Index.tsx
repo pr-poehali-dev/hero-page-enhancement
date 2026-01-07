@@ -11,6 +11,7 @@ const Index = () => {
   const [showUI, setShowUI] = useState(true);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
+  const [mediaItems, setMediaItems] = useState<any[]>([]);
 
   useEffect(() => {
     const savedAdmin = localStorage.getItem('isAdmin');
@@ -21,6 +22,11 @@ const Index = () => {
     const savedPosts = localStorage.getItem('posts');
     if (savedPosts) {
       setPosts(JSON.parse(savedPosts));
+    }
+
+    const savedMedia = localStorage.getItem('mediaItems');
+    if (savedMedia) {
+      setMediaItems(JSON.parse(savedMedia));
     }
 
     const savedBg = localStorage.getItem('backgroundImage');
@@ -59,6 +65,12 @@ const Index = () => {
     localStorage.setItem('backgroundImage', image);
   };
 
+  const addMedia = (media: any) => {
+    const newMedia = [...mediaItems, media];
+    setMediaItems(newMedia);
+    localStorage.setItem('mediaItems', JSON.stringify(newMedia));
+  };
+
   return (
     <div 
       className="min-h-screen relative overflow-x-hidden"
@@ -76,7 +88,7 @@ const Index = () => {
       {showUI && (
         <>
           <CircularMenu />
-          {isAdmin && <AdminPanel onAddPost={addPost} onUpdateBackground={updateBackground} />}
+          {isAdmin && <AdminPanel onAddPost={addPost} onUpdateBackground={updateBackground} onAddMedia={addMedia} />}
         </>
       )}
 
@@ -85,7 +97,7 @@ const Index = () => {
       </div>
 
       <div id="media" className="relative z-10">
-        <MediaSection />
+        <MediaSection mediaItems={mediaItems} />
       </div>
 
       <div id="about" className="relative z-10">
