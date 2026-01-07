@@ -53,10 +53,12 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				game: {
-					purple: '#8B5CF6',
-					red: '#ef4444',
-					black: '#000000',
-					white: '#ffffff'
+					forest: '#1a4d2e',
+					blood: '#8B0000',
+					fog: '#b8c5d6',
+					night: '#0a0e1a',
+					toxic: '#39FF14',
+					dead: '#1a1a1a'
 				}
 			},
 			borderRadius: {

@@ -24,7 +24,7 @@ export const CircularMenu = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={() => scrollToSection(item.href)}
-                className="w-14 h-14 rounded-full bg-game-purple hover:bg-game-purple/80 flex items-center justify-center text-white shadow-lg animate-float transition-all hover:scale-110"
+                className="w-14 h-14 rounded-sm bg-game-blood hover:bg-game-blood/80 flex items-center justify-center text-game-toxic shadow-lg shadow-game-blood/50 animate-float transition-all hover:scale-110 horror-border"
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <Icon name={item.icon as any} size={24} />

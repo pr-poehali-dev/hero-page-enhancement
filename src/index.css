@@ -55,12 +55,83 @@
 
 @layer utilities {
   .gradient-bg {
-    background: linear-gradient(to bottom, #ffffff 0%, #000000 100%);
+    background: linear-gradient(
+      to bottom,
+      #0a1f0f 0%,
+      #000000 50%,
+      #1a0a0a 100%
+    );
   }
 
   .text-shadow-glow {
     text-shadow:
-      0 0 20px rgba(255, 255, 255, 0.8),
-      0 0 40px rgba(255, 255, 255, 0.5);
+      0 0 20px rgba(139, 255, 139, 0.6),
+      0 0 40px rgba(139, 255, 139, 0.3),
+      2px 2px 0px rgba(0, 0, 0, 0.8);
+  }
+
+  .text-shadow-blood {
+    text-shadow:
+      0 0 20px rgba(255, 50, 50, 0.8),
+      0 0 40px rgba(255, 0, 0, 0.5),
+      2px 2px 0px rgba(0, 0, 0, 0.9);
+  }
+
+  .horror-border {
+    border: 2px solid;
+    border-image: linear-gradient(45deg, #8b0000, #228b22, #000) 1;
+    box-shadow:
+      0 0 20px rgba(139, 0, 0, 0.3),
+      inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .glitch {
+    animation: glitch 3s infinite;
+  }
+
+  @keyframes glitch {
+    0%,
+    90%,
+    100% {
+      transform: translate(0);
+    }
+    91% {
+      transform: translate(-2px, 2px);
+    }
+    93% {
+      transform: translate(2px, -2px);
+    }
+    95% {
+      transform: translate(-1px, 1px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

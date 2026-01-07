@@ -88,7 +88,7 @@ export const PostsList = ({ posts }: { posts: Post[] }) => {
 
   return (
     <div className="container mx-auto px-4 py-20">
-      <h2 className="pixel-font text-3xl md:text-4xl text-white text-center mb-12 text-shadow-glow">
+      <h2 className="pixel-font text-3xl md:text-4xl text-game-toxic text-center mb-12 text-shadow-glow glitch">
         Новости
       </h2>
 
@@ -96,19 +96,19 @@ export const PostsList = ({ posts }: { posts: Post[] }) => {
         {posts.map((post, index) => (
           <Card
             key={post.id}
-            className="bg-black/80 border-game-purple p-6 animate-scale-in"
+            className="bg-game-night/90 border-2 border-game-blood/50 p-6 animate-scale-in shadow-xl shadow-game-blood/20 horror-border"
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             {post.title && (
-              <h3 className="pixel-font text-xl text-white mb-4">{post.title}</h3>
+              <h3 className="pixel-font text-xl text-game-toxic mb-4">{post.title}</h3>
             )}
 
             {post.content && (
-              <p className="text-white/90 mb-4 leading-relaxed">{post.content}</p>
+              <p className="text-game-fog mb-4 leading-relaxed">{post.content}</p>
             )}
 
             {post.media && (
-              <div className="mb-4 rounded overflow-hidden">
+              <div className="mb-4 rounded overflow-hidden border-2 border-game-forest/50">
                 {post.mediaType === 'image' ? (
                   <img src={post.media} alt="" className="w-full object-cover" />
                 ) : (
@@ -126,20 +126,20 @@ export const PostsList = ({ posts }: { posts: Post[] }) => {
                 <Icon
                   name="Heart"
                   size={20}
-                  className={`transition-colors ${
+                  className={`transition-all ${
                     likedPosts.has(post.id)
-                      ? 'text-game-red fill-game-red'
-                      : 'text-white/60 group-hover:text-game-red'
+                      ? 'text-game-blood fill-game-blood'
+                      : 'text-game-fog/60 group-hover:text-game-blood'
                   }`}
                 />
-                <span className="text-white text-sm">{post.likes}</span>
+                <span className="text-game-fog text-sm">{post.likes}</span>
               </button>
             </div>
 
             <div className="space-y-3">
               {postComments[post.id]?.map((comment) => (
-                <div key={comment.id} className="bg-white/5 rounded p-3">
-                  <p className="text-white/80 text-sm">{comment.text}</p>
+                <div key={comment.id} className="bg-game-night/50 border border-game-forest/30 rounded p-3 animate-fade-in">
+                  <p className="text-game-fog text-sm">{comment.text}</p>
                 </div>
               ))}
 
@@ -151,12 +151,12 @@ export const PostsList = ({ posts }: { posts: Post[] }) => {
                   }
                   onKeyPress={(e) => handleKeyPress(e, post.id)}
                   placeholder="Добавить комментарий..."
-                  className="bg-white/10 border-game-purple/50 text-white placeholder:text-gray-400"
+                  className="bg-game-night/50 border-game-forest text-game-fog placeholder:text-game-fog/50 focus:border-game-toxic transition-all"
                 />
                 <Button
                   onClick={() => handleAddComment(post.id)}
                   size="icon"
-                  className="bg-game-purple hover:bg-game-purple/80"
+                  className="bg-game-blood hover:bg-game-blood/80 text-game-toxic border border-game-blood/50"
                 >
                   <Icon name="Send" size={16} />
                 </Button>

@@ -8,21 +8,33 @@ import { toast } from 'sonner';
 
 interface AdminPanelProps {
   onAddPost: (post: any) => void;
+  onUpdatePost: (post: any) => void;
+  onDeletePost: (id: number) => void;
   onUpdateBackground: (image: string) => void;
+  onRemoveBackground: () => void;
   onAddMedia: (media: any) => void;
+  posts: any[];
 }
 
-export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminPanelProps) => {
+export const AdminPanel = ({ 
+  onAddPost, 
+  onUpdatePost,
+  onDeletePost,
+  onUpdateBackground, 
+  onRemoveBackground,
+  onAddMedia,
+  posts 
+}: AdminPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'posts' | 'media'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'media' | 'edit'>('posts');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [media, setMedia] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
-  const [showTypewriter, setShowTypewriter] = useState(false);
   const [mediaTitle, setMediaTitle] = useState('');
   const [mediaFile, setMediaFile] = useState<string | null>(null);
   const [mediaFileType, setMediaFileType] = useState<'image' | 'video' | null>(null);
+  const [editingPost, setEditingPost] = useState<any>(null);
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,12 +62,6 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminP
   };
 
   const handlePublish = () => {
-    if (!content && !media) {
-      setShowTypewriter(true);
-      setTimeout(() => setShowTypewriter(false), 2000);
-      return;
-    }
-
     const post = {
       id: Date.now(),
       title,
@@ -95,8 +101,7 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminP
 
   const handleAddMedia = () => {
     if (!mediaFile) {
-      setShowTypewriter(true);
-      setTimeout(() => setShowTypewriter(false), 2000);
+      toast.error('Выберите файл для загрузки');
       return;
     }
 
@@ -120,25 +125,46 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminP
     setMediaFileType(null);
   };
 
+  const startEditPost = (post: any) => {
+    setEditingPost(post);
+    setActiveTab('edit');
+  };
+
+  const handleUpdatePost = () => {
+    if (editingPost) {
+      onUpdatePost(editingPost);
+      setEditingPost(null);
+      setActiveTab('posts');
+      toast.success('Публикация обновлена!');
+    }
+  };
+
+  const handleDeletePost = (id: number) => {
+    if (confirm('Удалить публикацию?')) {
+      onDeletePost(id);
+      toast.success('Публикация удалена!');
+    }
+  };
+
   return (
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed left-8 top-8 w-12 h-12 rounded-full bg-game-purple hover:bg-game-purple/80 flex items-center justify-center text-white shadow-lg animate-float z-50"
+        className="fixed left-8 top-8 w-12 h-12 rounded-sm bg-game-blood hover:bg-game-blood/80 flex items-center justify-center text-game-toxic shadow-lg shadow-game-blood/50 animate-float z-50 horror-border transition-all"
       >
         <Icon name="Lock" size={20} />
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-2xl bg-black/90 border-game-purple p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-4 animate-fade-in backdrop-blur-sm">
+          <Card className="w-full max-w-2xl bg-game-night/95 border-2 border-game-blood p-6 max-h-[90vh] overflow-y-auto shadow-2xl shadow-game-blood/30">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="pixel-font text-xl text-white">Admin Panel</h2>
+              <h2 className="pixel-font text-xl text-game-toxic glitch">Admin Panel</h2>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(false)}
-                className="text-white hover:bg-game-purple/20"
+                className="text-game-blood hover:bg-game-blood/20 hover:text-game-toxic transition-all"
               >
                 <Icon name="X" size={20} />
               </Button>
@@ -147,60 +173,68 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminP
             <div className="flex gap-2 mb-6">
               <Button
                 onClick={() => setActiveTab('posts')}
-                className={`flex-1 ${activeTab === 'posts' ? 'bg-game-purple' : 'bg-white/10'} hover:bg-game-purple/80 text-white pixel-font text-xs`}
+                className={`flex-1 ${activeTab === 'posts' ? 'bg-game-blood text-game-toxic' : 'bg-game-night/50 text-game-fog'} hover:bg-game-blood/80 hover:text-game-toxic pixel-font text-xs border border-game-blood/50 transition-all`}
               >
                 Публикации
               </Button>
               <Button
                 onClick={() => setActiveTab('media')}
-                className={`flex-1 ${activeTab === 'media' ? 'bg-game-purple' : 'bg-white/10'} hover:bg-game-purple/80 text-white pixel-font text-xs`}
+                className={`flex-1 ${activeTab === 'media' ? 'bg-game-blood text-game-toxic' : 'bg-game-night/50 text-game-fog'} hover:bg-game-blood/80 hover:text-game-toxic pixel-font text-xs border border-game-blood/50 transition-all`}
               >
                 Медиа
               </Button>
+              {editingPost && (
+                <Button
+                  onClick={() => setActiveTab('edit')}
+                  className={`flex-1 ${activeTab === 'edit' ? 'bg-game-blood text-game-toxic' : 'bg-game-night/50 text-game-fog'} hover:bg-game-blood/80 hover:text-game-toxic pixel-font text-xs border border-game-blood/50 transition-all`}
+                >
+                  Редактор
+                </Button>
+              )}
             </div>
 
             {activeTab === 'posts' && (
             <div className="space-y-4">
               <div>
-                <label className="text-white text-sm mb-2 block">Заголовок</label>
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Заголовок</label>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Введите заголовок..."
-                  className="bg-white/10 border-game-purple text-white placeholder:text-gray-400"
+                  className="bg-game-night/50 border-game-forest text-game-fog placeholder:text-game-fog/50 focus:border-game-toxic transition-all"
                 />
               </div>
 
               <div>
-                <label className="text-white text-sm mb-2 block">Текст</label>
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Текст</label>
                 <Textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Введите текст публикации..."
-                  className="bg-white/10 border-game-purple text-white placeholder:text-gray-400 min-h-32"
+                  className="bg-game-night/50 border-game-forest text-game-fog placeholder:text-game-fog/50 min-h-32 focus:border-game-toxic transition-all"
                 />
               </div>
 
               <div>
-                <label className="text-white text-sm mb-2 block">Фото или видео</label>
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Фото или видео</label>
                 <Input
                   type="file"
                   accept="image/*,video/*"
                   onChange={handleMediaUpload}
-                  className="bg-white/10 border-game-purple text-white"
+                  className="bg-game-night/50 border-game-forest text-game-fog file:text-game-fog cursor-pointer"
                 />
                 {media && (
-                  <div className="mt-2 relative">
+                  <div className="mt-2 relative animate-scale-in">
                     {mediaType === 'image' ? (
-                      <img src={media} alt="Preview" className="w-full h-48 object-cover rounded" />
+                      <img src={media} alt="Preview" className="w-full h-48 object-cover rounded border-2 border-game-blood/50" />
                     ) : (
-                      <video src={media} className="w-full h-48 object-cover rounded" controls />
+                      <video src={media} className="w-full h-48 object-cover rounded border-2 border-game-blood/50" controls />
                     )}
                     <Button
                       variant="destructive"
                       size="icon"
                       onClick={removeMedia}
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 bg-game-blood hover:bg-game-blood/80"
                     >
                       <Icon name="Trash2" size={16} />
                     </Button>
@@ -209,62 +243,95 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminP
               </div>
 
               <div>
-                <label className="text-white text-sm mb-2 block">Фон сайта</label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBackgroundUpload}
-                  className="bg-white/10 border-game-purple text-white"
-                />
-              </div>
-
-              {showTypewriter && (
-                <div className="text-game-red pixel-font text-sm overflow-hidden whitespace-nowrap animate-typewriter">
-                  File not selected
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Фон сайта</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBackgroundUpload}
+                    className="bg-game-night/50 border-game-forest text-game-fog file:text-game-fog cursor-pointer flex-1"
+                  />
+                  <Button
+                    onClick={onRemoveBackground}
+                    variant="outline"
+                    className="border-game-blood text-game-blood hover:bg-game-blood hover:text-game-toxic"
+                  >
+                    <Icon name="Trash2" size={16} />
+                  </Button>
                 </div>
-              )}
+              </div>
 
               <Button
                 onClick={handlePublish}
-                className="w-full bg-game-purple hover:bg-game-purple/80 text-white pixel-font text-xs"
+                className="w-full bg-game-blood hover:bg-game-blood/80 text-game-toxic pixel-font text-xs shadow-lg shadow-game-blood/30 transition-all"
               >
                 Опубликовать
               </Button>
+
+              <div className="mt-6 space-y-2">
+                <label className="text-game-fog text-sm pixel-font block">Список публикаций</label>
+                {posts.map((post) => (
+                  <div key={post.id} className="bg-game-night/50 border border-game-forest p-3 rounded flex justify-between items-center animate-fade-in">
+                    <div className="flex-1">
+                      <p className="text-game-fog text-sm">{post.title || 'Без названия'}</p>
+                      <p className="text-game-fog/60 text-xs">{new Date(post.timestamp).toLocaleString('ru-RU')}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => startEditPost(post)}
+                        className="text-game-toxic hover:bg-game-forest/30"
+                      >
+                        <Icon name="Edit" size={16} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDeletePost(post.id)}
+                        className="text-game-blood hover:bg-game-blood/20"
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
             )}
 
             {activeTab === 'media' && (
             <div className="space-y-4">
               <div>
-                <label className="text-white text-sm mb-2 block">Название</label>
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Название</label>
                 <Input
                   value={mediaTitle}
                   onChange={(e) => setMediaTitle(e.target.value)}
                   placeholder="Название медиа (необязательно)..."
-                  className="bg-white/10 border-game-purple text-white placeholder:text-gray-400"
+                  className="bg-game-night/50 border-game-forest text-game-fog placeholder:text-game-fog/50 focus:border-game-toxic transition-all"
                 />
               </div>
 
               <div>
-                <label className="text-white text-sm mb-2 block">Видео или изображение</label>
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Видео или изображение</label>
                 <Input
                   type="file"
                   accept="image/*,video/*"
                   onChange={handleMediaFileUpload}
-                  className="bg-white/10 border-game-purple text-white"
+                  className="bg-game-night/50 border-game-forest text-game-fog file:text-game-fog cursor-pointer"
                 />
                 {mediaFile && (
-                  <div className="mt-2 relative">
+                  <div className="mt-2 relative animate-scale-in">
                     {mediaFileType === 'image' ? (
-                      <img src={mediaFile} alt="Preview" className="w-full h-48 object-cover rounded" />
+                      <img src={mediaFile} alt="Preview" className="w-full h-48 object-cover rounded border-2 border-game-blood/50" />
                     ) : (
-                      <video src={mediaFile} className="w-full h-48 object-cover rounded" controls />
+                      <video src={mediaFile} className="w-full h-48 object-cover rounded border-2 border-game-blood/50" controls />
                     )}
                     <Button
                       variant="destructive"
                       size="icon"
                       onClick={removeMediaFile}
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 bg-game-blood hover:bg-game-blood/80"
                     >
                       <Icon name="Trash2" size={16} />
                     </Button>
@@ -272,18 +339,53 @@ export const AdminPanel = ({ onAddPost, onUpdateBackground, onAddMedia }: AdminP
                 )}
               </div>
 
-              {showTypewriter && (
-                <div className="text-game-red pixel-font text-sm overflow-hidden whitespace-nowrap animate-typewriter">
-                  File not selected
-                </div>
-              )}
-
               <Button
                 onClick={handleAddMedia}
-                className="w-full bg-game-purple hover:bg-game-purple/80 text-white pixel-font text-xs"
+                className="w-full bg-game-blood hover:bg-game-blood/80 text-game-toxic pixel-font text-xs shadow-lg shadow-game-blood/30 transition-all"
               >
                 Добавить в медиа
               </Button>
+            </div>
+            )}
+
+            {activeTab === 'edit' && editingPost && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Заголовок</label>
+                <Input
+                  value={editingPost.title}
+                  onChange={(e) => setEditingPost({...editingPost, title: e.target.value})}
+                  className="bg-game-night/50 border-game-forest text-game-fog focus:border-game-toxic transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="text-game-fog text-sm mb-2 block pixel-font">Текст</label>
+                <Textarea
+                  value={editingPost.content}
+                  onChange={(e) => setEditingPost({...editingPost, content: e.target.value})}
+                  className="bg-game-night/50 border-game-forest text-game-fog min-h-32 focus:border-game-toxic transition-all"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleUpdatePost}
+                  className="flex-1 bg-game-blood hover:bg-game-blood/80 text-game-toxic pixel-font text-xs"
+                >
+                  Сохранить
+                </Button>
+                <Button
+                  onClick={() => {
+                    setEditingPost(null);
+                    setActiveTab('posts');
+                  }}
+                  variant="outline"
+                  className="flex-1 border-game-forest text-game-fog hover:bg-game-forest/20"
+                >
+                  Отмена
+                </Button>
+              </div>
             </div>
             )}
           </Card>

@@ -37,19 +37,26 @@ const Index = () => {
       setBackgroundImage(savedBg);
     }
 
+    let keySequence: string[] = [];
+    const secretCode = ['d', 'e', 'v', '5', '0', '9'];
+    
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'i' || e.key === 'I' || e.key === 'ш' || e.key === 'Ш') {
         setShowUI(prev => !prev);
       }
 
-      if (e.ctrlKey && e.shiftKey && (e.key === 'L' || e.key === 'l' || e.key === 'Д' || e.key === 'д')) {
-        const code = prompt('Enter developer code:');
-        if (code === '509') {
+      keySequence.push(e.key.toLowerCase());
+      if (keySequence.length > secretCode.length) {
+        keySequence.shift();
+      }
+
+      if (keySequence.join('') === secretCode.join('')) {
+        if (!isAdmin) {
           setIsAdmin(true);
           localStorage.setItem('isAdmin', 'true');
-        } else if (code) {
-          alert('Invalid code');
+          console.log('🔓 Access granted');
         }
+        keySequence = [];
       }
     };
 
@@ -63,9 +70,26 @@ const Index = () => {
     localStorage.setItem('posts', JSON.stringify(newPosts));
   };
 
+  const updatePost = (updatedPost: any) => {
+    const newPosts = posts.map(p => p.id === updatedPost.id ? updatedPost : p);
+    setPosts(newPosts);
+    localStorage.setItem('posts', JSON.stringify(newPosts));
+  };
+
+  const deletePost = (id: number) => {
+    const newPosts = posts.filter(p => p.id !== id);
+    setPosts(newPosts);
+    localStorage.setItem('posts', JSON.stringify(newPosts));
+  };
+
   const updateBackground = (image: string) => {
     setBackgroundImage(image);
     localStorage.setItem('backgroundImage', image);
+  };
+
+  const removeBackground = () => {
+    setBackgroundImage(null);
+    localStorage.removeItem('backgroundImage');
   };
 
   const addMedia = async (media: any) => {
@@ -95,7 +119,17 @@ const Index = () => {
       {showUI && (
         <>
           <CircularMenu />
-          {isAdmin && <AdminPanel onAddPost={addPost} onUpdateBackground={updateBackground} onAddMedia={addMedia} />}
+          {isAdmin && (
+            <AdminPanel 
+              onAddPost={addPost} 
+              onUpdatePost={updatePost}
+              onDeletePost={deletePost}
+              onUpdateBackground={updateBackground}
+              onRemoveBackground={removeBackground}
+              onAddMedia={addMedia}
+              posts={posts}
+            />
+          )}
         </>
       )}
 
